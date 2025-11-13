@@ -401,6 +401,105 @@
             background-color: var(--danger);
             color: var(--light);
         }
+
+        /* NOVOS ESTILOS PARA ADMIN DO QUIZ */
+        .quiz-admin-panel {
+            background-color: #f8f9fa;
+            border-radius: 10px;
+            padding: 25px;
+            margin: 20px 0;
+            border: 2px solid var(--secondary);
+        }
+
+        .quiz-admin-panel h3 {
+            color: var(--secondary);
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .question-form {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .question-item {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            border-left: 4px solid var(--primary);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .question-header {
+            display: flex;
+            justify-content: between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .question-text {
+            font-weight: bold;
+            flex: 1;
+        }
+
+        .question-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .options-list {
+            margin-left: 20px;
+        }
+
+        .correct-option {
+            color: var(--success);
+            font-weight: bold;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: var(--dark);
+        }
+
+        .form-group input, .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1rem;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .admin-controls {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        .btn-success {
+            background-color: var(--success);
+        }
+
+        .btn-warning {
+            background-color: var(--warning);
+            color: var(--dark);
+        }
         
         /* Project Viewer - CORRIGIDO */
         .project-viewer {
@@ -544,6 +643,10 @@
             
             .project-header {
                 padding: 12px 15px;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
             }
         }
     </style>
@@ -759,6 +862,47 @@
                         <div>Portfólio Completo</div>
                     </div>
                 </div>
+
+                <!-- NOVA SEÇÃO: Administração do Quiz -->
+                <div class="quiz-admin-panel">
+                    <h3>📝 Administração do Quiz Pokémon</h3>
+                    
+                    <div class="question-form">
+                        <h4>Adicionar Nova Pergunta</h4>
+                        <div class="form-group">
+                            <label for="new-question">Pergunta:</label>
+                            <textarea id="new-question" rows="3" placeholder="Digite a pergunta"></textarea>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="option-a">Opção A (Correta):</label>
+                                <input type="text" id="option-a" placeholder="Resposta correta">
+                            </div>
+                            <div class="form-group">
+                                <label for="option-b">Opção B:</label>
+                                <input type="text" id="option-b" placeholder="Resposta incorreta">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="option-c">Opção C:</label>
+                                <input type="text" id="option-c" placeholder="Resposta incorreta">
+                            </div>
+                            <div class="form-group">
+                                <label for="option-d">Opção D:</label>
+                                <input type="text" id="option-d" placeholder="Resposta incorreta">
+                            </div>
+                        </div>
+                        <div class="admin-controls">
+                            <button class="btn btn-success" onclick="addQuestion()">Adicionar Pergunta</button>
+                            <button class="btn btn-warning" onclick="resetQuiz()">Resetar Quiz</button>
+                        </div>
+                    </div>
+
+                    <div id="questions-list">
+                        <!-- Lista de perguntas será carregada aqui -->
+                    </div>
+                </div>
                 
                 <div class="user-list">
                     <h3>Gerenciar Usuários</h3>
@@ -781,7 +925,7 @@
         </div>
     </div>
     
-    <!-- Visualizador de Projetos - CORRIGIDO -->
+    <!-- Visualizador de Projetos -->
     <div id="project-viewer" class="project-viewer">
         <div class="project-frame">
             <div class="project-header">
@@ -822,6 +966,46 @@
         
         let currentUser = null;
         let isAdmin = false;
+
+        // Perguntas do quiz (armazenadas no localStorage)
+        let quizQuestions = JSON.parse(localStorage.getItem('pokemon_quiz_questions')) || [
+            {
+                id: 1,
+                question: "Qual é o Pokémon número 001 na Pokédex?",
+                options: ["Bulbasaur", "Charmander", "Squirtle", "Pikachu"],
+                correct: 0
+            },
+            {
+                id: 2,
+                question: "Qual tipo é supereficaz contra Pokémon do tipo Água?",
+                options: ["Fogo", "Elétrico", "Grama", "Pedra"],
+                correct: 1
+            },
+            {
+                id: 3,
+                question: "Quem é o rival do Ash na região de Kanto?",
+                options: ["Gary", "Paul", "Trip", "Sawyer"],
+                correct: 0
+            },
+            {
+                id: 4,
+                question: "Qual destes Pokémon é do tipo Fantasma?",
+                options: ["Gastly", "Zubat", "Drowzee", "Abra"],
+                correct: 0
+            },
+            {
+                id: 5,
+                question: "Quantas badges Ash precisa coletar em cada região?",
+                options: ["6", "7", "8", "9"],
+                correct: 2
+            },
+            {
+                id: 6,
+                question: "Qual destes Pokémon é uma evolução de Eevee?",
+                options: ["Vaporeon", "Flareon", "Jolteon", "Todas as anteriores"],
+                correct: 3
+            }
+        ];
 
         // URLs e ícones dos projetos
         const projectData = {
@@ -890,6 +1074,7 @@
             
             updateAdminStats();
             loadUsersTable();
+            loadQuizQuestions();
         }
         
         function showLoginForm(type) {
@@ -1039,7 +1224,7 @@
             showLoginScreen();
         }
         
-        // Funções de projetos - CORRIGIDAS
+        // Funções de projetos
         function openProject(projectId) {
             const project = projectData[projectId];
             
@@ -1060,14 +1245,22 @@
             
             // Configurar iframe
             const iframe = document.getElementById('project-iframe');
-            iframe.src = project.url;
+            
+            // Passar informações do usuário para o Quiz
+            let url = project.url;
+            if (projectId === 'quiz') {
+                const userType = isAdmin ? 'admin' : 'user';
+                const username = currentUser ? currentUser.username : 'guest';
+                url += `?userType=${userType}&username=${encodeURIComponent(username)}`;
+            }
+            
+            iframe.src = url;
             
             // Configurar eventos do iframe
             iframe.onload = function() {
                 document.getElementById('loading-container').style.display = 'none';
                 document.getElementById('project-iframe').style.display = 'block';
                 
-                // Ajustar o iframe para ocupar toda a área
                 setTimeout(() => {
                     try {
                         iframe.contentDocument.body.style.margin = '0';
@@ -1154,6 +1347,141 @@
                 updateAdminStats();
                 loadUsersTable();
                 alert('Usuário excluído com sucesso!');
+            }
+        }
+
+        // NOVAS FUNÇÕES PARA ADMINISTRAÇÃO DO QUIZ
+        function loadQuizQuestions() {
+            const questionsList = document.getElementById('questions-list');
+            questionsList.innerHTML = '';
+            
+            if (quizQuestions.length === 0) {
+                questionsList.innerHTML = '<p style="text-align: center; color: #666;">Nenhuma pergunta cadastrada.</p>';
+                return;
+            }
+            
+            quizQuestions.forEach((question, index) => {
+                const questionElement = document.createElement('div');
+                questionElement.className = 'question-item';
+                questionElement.innerHTML = `
+                    <div class="question-header">
+                        <div class="question-text">${index + 1}. ${question.question}</div>
+                        <div class="question-actions">
+                            <button class="action-btn edit-btn" onclick="editQuestion(${question.id})">Editar</button>
+                            <button class="action-btn delete-btn" onclick="deleteQuestion(${question.id})">Excluir</button>
+                        </div>
+                    </div>
+                    <div class="options-list">
+                        ${question.options.map((option, optIndex) => `
+                            <div class="${optIndex === question.correct ? 'correct-option' : ''}">
+                                ${String.fromCharCode(65 + optIndex)}) ${option} ${optIndex === question.correct ? '✓' : ''}
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+                questionsList.appendChild(questionElement);
+            });
+        }
+        
+        function addQuestion() {
+            const questionText = document.getElementById('new-question').value;
+            const optionA = document.getElementById('option-a').value;
+            const optionB = document.getElementById('option-b').value;
+            const optionC = document.getElementById('option-c').value;
+            const optionD = document.getElementById('option-d').value;
+            
+            if (!questionText || !optionA || !optionB || !optionC || !optionD) {
+                alert('Por favor, preencha todos os campos!');
+                return;
+            }
+            
+            const newQuestion = {
+                id: quizQuestions.length > 0 ? Math.max(...quizQuestions.map(q => q.id)) + 1 : 1,
+                question: questionText,
+                options: [optionA, optionB, optionC, optionD],
+                correct: 0 // A primeira opção é sempre a correta
+            };
+            
+            quizQuestions.push(newQuestion);
+            localStorage.setItem('pokemon_quiz_questions', JSON.stringify(quizQuestions));
+            
+            // Limpar formulário
+            document.getElementById('new-question').value = '';
+            document.getElementById('option-a').value = '';
+            document.getElementById('option-b').value = '';
+            document.getElementById('option-c').value = '';
+            document.getElementById('option-d').value = '';
+            
+            loadQuizQuestions();
+            alert('Pergunta adicionada com sucesso!');
+        }
+        
+        function editQuestion(questionId) {
+            const question = quizQuestions.find(q => q.id === questionId);
+            if (question) {
+                const newQuestion = prompt('Editar pergunta:', question.question);
+                if (newQuestion && newQuestion !== question.question) {
+                    question.question = newQuestion;
+                    localStorage.setItem('pokemon_quiz_questions', JSON.stringify(quizQuestions));
+                    loadQuizQuestions();
+                    alert('Pergunta atualizada com sucesso!');
+                }
+            }
+        }
+        
+        function deleteQuestion(questionId) {
+            if (confirm('Tem certeza que deseja excluir esta pergunta?')) {
+                quizQuestions = quizQuestions.filter(q => q.id !== questionId);
+                localStorage.setItem('pokemon_quiz_questions', JSON.stringify(quizQuestions));
+                loadQuizQuestions();
+                alert('Pergunta excluída com sucesso!');
+            }
+        }
+        
+        function resetQuiz() {
+            if (confirm('Tem certeza que deseja resetar o quiz para as perguntas padrão? Todas as perguntas adicionadas serão perdidas.')) {
+                quizQuestions = [
+                    {
+                        id: 1,
+                        question: "Qual é o Pokémon número 001 na Pokédex?",
+                        options: ["Bulbasaur", "Charmander", "Squirtle", "Pikachu"],
+                        correct: 0
+                    },
+                    {
+                        id: 2,
+                        question: "Qual tipo é supereficaz contra Pokémon do tipo Água?",
+                        options: ["Fogo", "Elétrico", "Grama", "Pedra"],
+                        correct: 1
+                    },
+                    {
+                        id: 3,
+                        question: "Quem é o rival do Ash na região de Kanto?",
+                        options: ["Gary", "Paul", "Trip", "Sawyer"],
+                        correct: 0
+                    },
+                    {
+                        id: 4,
+                        question: "Qual destes Pokémon é do tipo Fantasma?",
+                        options: ["Gastly", "Zubat", "Drowzee", "Abra"],
+                        correct: 0
+                    },
+                    {
+                        id: 5,
+                        question: "Quantas badges Ash precisa coletar em cada região?",
+                        options: ["6", "7", "8", "9"],
+                        correct: 2
+                    },
+                    {
+                        id: 6,
+                        question: "Qual destes Pokémon é uma evolução de Eevee?",
+                        options: ["Vaporeon", "Flareon", "Jolteon", "Todas as anteriores"],
+                        correct: 3
+                    }
+                ];
+                
+                localStorage.setItem('pokemon_quiz_questions', JSON.stringify(quizQuestions));
+                loadQuizQuestions();
+                alert('Quiz resetado para as perguntas padrão!');
             }
         }
 
