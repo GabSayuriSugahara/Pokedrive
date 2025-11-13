@@ -1,0 +1,907 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sorteador Pokémon - PokeDrive</title>
+    <style>
+        :root {
+            --primary: #FF0000;
+            --secondary: #3B4CCA;
+            --accent: #FFDE00;
+            --light: #FFFFFF;
+            --dark: #2C2C2C;
+            --grass: #78C850;
+            --water: #6890F0;
+            --fire: #F08030;
+            --electric: #F8D030;
+            --psychic: #F85888;
+            --ice: #98D8D8;
+            --fighting: #C03028;
+            --poison: #A040A0;
+            --ground: #E0C068;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 1000px;
+            background-color: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .pokeball-decoration {
+            position: absolute;
+            width: 100px;
+            height: 100px;
+            background: radial-gradient(circle at 50% 50%, var(--light) 40%, var(--dark) 40%, var(--dark) 45%, transparent 45%),
+                        linear-gradient(to bottom, var(--primary) 0%, var(--primary) 47%, var(--dark) 47%, var(--dark) 53%, var(--light) 53%, var(--light) 100%);
+            border-radius: 50%;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+            z-index: 1;
+        }
+        
+        .pokeball-1 {
+            top: -50px;
+            right: -50px;
+        }
+        
+        .pokeball-2 {
+            bottom: -50px;
+            left: -50px;
+        }
+        
+        header {
+            background-color: var(--primary);
+            color: var(--light);
+            padding: 20px;
+            text-align: center;
+            position: relative;
+            z-index: 2;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+        }
+        
+        .logo h1 {
+            font-size: 2.2rem;
+            text-shadow: 2px 2px 0 var(--secondary);
+            letter-spacing: 2px;
+        }
+        
+        .logo img {
+            height: 50px;
+        }
+        
+        .content {
+            padding: 25px;
+            position: relative;
+            z-index: 2;
+        }
+        
+        .sorter-container {
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+        }
+        
+        .mode-selector {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .mode-btn {
+            padding: 12px 25px;
+            background-color: #e0e0e0;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .mode-btn.active {
+            background-color: var(--secondary);
+            color: white;
+            transform: translateY(-2px);
+        }
+        
+        .mode-btn:hover:not(.active) {
+            background-color: #d0d0d0;
+        }
+        
+        .input-section {
+            background-color: #f8f8f8;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .section-title {
+            font-weight: bold;
+            color: var(--secondary);
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+            text-align: center;
+        }
+        
+        .input-area {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .input-group label {
+            font-weight: bold;
+            color: var(--dark);
+        }
+        
+        .input-group textarea {
+            width: 100%;
+            height: 120px;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+            resize: vertical;
+            transition: border-color 0.3s;
+        }
+        
+        .input-group textarea:focus {
+            border-color: var(--secondary);
+            outline: none;
+        }
+        
+        .input-group input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+        
+        .input-group input:focus {
+            border-color: var(--secondary);
+            outline: none;
+        }
+        
+        .input-hint {
+            font-size: 0.85rem;
+            color: #666;
+            margin-top: 5px;
+        }
+        
+        .options-row {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .option-group {
+            flex: 1;
+            min-width: 200px;
+        }
+        
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 10px;
+        }
+        
+        .checkbox-group input {
+            width: auto;
+        }
+        
+        .action-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            padding: 12px 25px;
+            background-color: var(--primary);
+            color: var(--light);
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .btn:hover {
+            background-color: var(--secondary);
+            transform: translateY(-2px);
+        }
+        
+        .btn-draw {
+            background-color: var(--electric);
+            color: var(--dark);
+        }
+        
+        .btn-clear {
+            background-color: var(--psychic);
+        }
+        
+        .btn-back {
+            background-color: var(--grass);
+        }
+        
+        .result-section {
+            background: linear-gradient(135deg, var(--secondary), var(--primary));
+            border-radius: 10px;
+            padding: 25px;
+            color: white;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            min-height: 200px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .result-title {
+            font-size: 1.3rem;
+            margin-bottom: 15px;
+            font-weight: bold;
+        }
+        
+        .result-display {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin: 15px 0;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+            min-height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .result-animation {
+            animation: drawAnimation 0.5s ease-in-out;
+        }
+        
+        @keyframes drawAnimation {
+            0% { transform: scale(0.8); opacity: 0; }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        
+        .result-details {
+            font-size: 1rem;
+            margin-top: 10px;
+            opacity: 0.9;
+        }
+        
+        .history-section {
+            background-color: #f8f8f8;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .history-title {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .history-list {
+            max-height: 200px;
+            overflow-y: auto;
+            padding: 10px;
+            background-color: white;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+        }
+        
+        .history-item {
+            padding: 8px 12px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        .history-item:last-child {
+            border-bottom: none;
+        }
+        
+        .history-item-number {
+            font-weight: bold;
+            color: var(--secondary);
+        }
+        
+        .history-clear {
+            background: none;
+            border: none;
+            color: var(--primary);
+            cursor: pointer;
+            font-weight: bold;
+            padding: 5px 10px;
+            border-radius: 5px;
+            transition: background-color 0.2s;
+        }
+        
+        .history-clear:hover {
+            background-color: rgba(255, 0, 0, 0.1);
+        }
+        
+        .examples-section {
+            background-color: #f0f8ff;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .examples-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .example-card {
+            background: white;
+            border-radius: 8px;
+            padding: 15px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        .example-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.15);
+        }
+        
+        .example-title {
+            font-weight: bold;
+            color: var(--secondary);
+            margin-bottom: 8px;
+        }
+        
+        .example-content {
+            font-size: 0.9rem;
+            color: #666;
+        }
+        
+        .pokemon-types {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 10px;
+        }
+        
+        .type-tag {
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: bold;
+            color: white;
+        }
+        
+        .type-normal { background-color: #A8A878; }
+        .type-fire { background-color: var(--fire); }
+        .type-water { background-color: var(--water); }
+        .type-grass { background-color: var(--grass); }
+        .type-electric { background-color: var(--electric); }
+        .type-psychic { background-color: var(--psychic); }
+        .type-ice { background-color: var(--ice); }
+        .type-fighting { background-color: var(--fighting); }
+        .type-poison { background-color: var(--poison); }
+        .type-ground { background-color: var(--ground); }
+        
+        @media (max-width: 768px) {
+            .mode-selector {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .mode-btn {
+                width: 100%;
+                max-width: 250px;
+            }
+            
+            .options-row {
+                flex-direction: column;
+            }
+            
+            .result-display {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="pokeball-decoration pokeball-1"></div>
+        <div class="pokeball-decoration pokeball-2"></div>
+        
+        <header>
+            <div class="logo">
+                <h1>Sorteador Pokémon</h1>
+                <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj48cGF0aCBmaWxsPSIjZmZmZmZmIiBkPSJNMjU2IDI1Nk0xMjggMzUyTDEyOCAxNjBMMzg0IDE2ME0zODQgMzUyTDI1NiAyNTZaIi8+PHBhdGggZmlsbD0iI2ZmZmZmZiIgZD0iTTI1NiA0NDhDMzU4LjUgNDQ4IDQ0OCAzNTguNSA0NDggMjU2UzM1OC41IDY0IDI1NiA2NFM2NCAxNTMuNSA2NCAyNTZTNTEzLjUgNDQ4IDI1NiA0NDhaIiBzdHJva2U9IiNmZmZmZmYiIHN0cm9rZS13aWR0aD0iMTYiLz48L3N2Zz4=" alt="Pokeball">
+            </div>
+        </header>
+        
+        <div class="content">
+            <div class="sorter-container">
+                <div class="mode-selector">
+                    <button class="mode-btn active" data-mode="names" onclick="setMode('names')">
+                        🎯 Sortear Nomes
+                    </button>
+                    <button class="mode-btn" data-mode="numbers" onclick="setMode('numbers')">
+                        🔢 Sortear Números
+                    </button>
+                    <button class="mode-btn" data-mode="teams" onclick="setMode('teams')">
+                        👥 Sortear Times
+                    </button>
+                </div>
+                
+                <div class="input-section">
+                    <div class="section-title" id="input-title">Adicione os Nomes para Sortear</div>
+                    
+                    <div class="input-area">
+                        <div class="input-group">
+                            <label id="input-label" for="input-data">Nomes (um por linha):</label>
+                            <textarea id="input-data" placeholder="Exemplo:&#10;Ash&#10;Misty&#10;Brock&#10;Gary"></textarea>
+                            <div class="input-hint" id="input-hint">
+                                Digite cada nome em uma linha separada
+                            </div>
+                        </div>
+                        
+                        <div class="options-row">
+                            <div class="option-group">
+                                <label for="draw-count">Quantidade a sortear:</label>
+                                <input type="number" id="draw-count" min="1" value="1">
+                            </div>
+                            
+                            <div class="option-group">
+                                <label>Opções:</label>
+                                <div class="checkbox-group">
+                                    <input type="checkbox" id="allow-duplicates">
+                                    <label for="allow-duplicates">Permitir resultados repetidos</label>
+                                </div>
+                                <div class="checkbox-group">
+                                    <input type="checkbox" id="save-history" checked>
+                                    <label for="save-history">Salvar histórico</label>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="action-buttons">
+                            <button class="btn btn-draw" onclick="draw()">
+                                <span>🎲</span> Sortear Agora!
+                            </button>
+                            <button class="btn" onclick="clearInput()">
+                                <span>🗑️</span> Limpar
+                            </button>
+                            <button class="btn btn-back" onclick="goBackToDrive()">
+                                <span>🏠</span> Voltar ao PokeDrive
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="result-section">
+                    <div class="result-title">Resultado do Sorteio</div>
+                    <div class="result-display" id="result-display">
+                        Clique em "Sortear Agora!"
+                    </div>
+                    <div class="result-details" id="result-details">
+                        O resultado aparecerá aqui
+                    </div>
+                </div>
+                
+                <div class="history-section">
+                    <div class="history-title">
+                        <div class="section-title">Histórico de Sorteios</div>
+                        <button class="history-clear" onclick="clearHistory()">Limpar Histórico</button>
+                    </div>
+                    <div class="history-list" id="history-list">
+                        <!-- Histórico será preenchido aqui -->
+                    </div>
+                </div>
+                
+                <div class="examples-section">
+                    <div class="section-title">Exemplos Prontos</div>
+                    <div class="examples-grid">
+                        <div class="example-card" onclick="loadExample('starterPokemon')">
+                            <div class="example-title">Pokémon Iniciais</div>
+                            <div class="example-content">Bulbasaur, Charmander, Squirtle, Pikachu, Eevee</div>
+                            <div class="pokemon-types">
+                                <span class="type-tag type-grass">Grama</span>
+                                <span class="type-tag type-fire">Fogo</span>
+                                <span class="type-tag type-water">Água</span>
+                            </div>
+                        </div>
+                        
+                        <div class="example-card" onclick="loadExample('gymLeaders')">
+                            <div class="example-title">Líderes de Ginásio</div>
+                            <div class="example-content">Brock, Misty, Lt. Surge, Erika, Koga, Sabrina, Blaine, Giovanni</div>
+                            <div class="pokemon-types">
+                                <span class="type-tag type-rock">Pedra</span>
+                                <span class="type-tag type-water">Água</span>
+                                <span class="type-tag type-electric">Elétrico</span>
+                            </div>
+                        </div>
+                        
+                        <div class="example-card" onclick="loadExample('lotoNumbers')">
+                            <div class="example-title">Números da Sorte</div>
+                            <div class="example-content">Sorteio de 6 números entre 1 e 60</div>
+                            <div class="pokemon-types">
+                                <span class="type-tag type-psychic">Psíquico</span>
+                                <span class="type-tag type-normal">Normal</span>
+                            </div>
+                        </div>
+                        
+                        <div class="example-card" onclick="loadExample('teamRocket')">
+                            <div class="example-title">Equipe Rocket</div>
+                            <div class="example-content">Jessie, James, Meowth, Giovanni, Butch, Cassidy</div>
+                            <div class="pokemon-types">
+                                <span class="type-tag type-poison">Veneno</span>
+                                <span class="type-tag type-dark">Sombrio</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Estado do aplicativo
+        let appState = {
+            currentMode: 'names',
+            history: JSON.parse(localStorage.getItem('pokemonSorterHistory')) || []
+        };
+
+        // Inicialização
+        document.addEventListener('DOMContentLoaded', function() {
+            updateHistoryDisplay();
+        });
+
+        // Configurar modo de sorteio
+        function setMode(mode) {
+            appState.currentMode = mode;
+            
+            // Atualizar botões de modo
+            document.querySelectorAll('.mode-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.mode === mode);
+            });
+            
+            // Atualizar interface baseada no modo
+            updateInterfaceForMode();
+        }
+
+        function updateInterfaceForMode() {
+            const titleElement = document.getElementById('input-title');
+            const labelElement = document.getElementById('input-label');
+            const hintElement = document.getElementById('input-hint');
+            const inputElement = document.getElementById('input-data');
+            
+            switch(appState.currentMode) {
+                case 'names':
+                    titleElement.textContent = 'Adicione os Nomes para Sortear';
+                    labelElement.textContent = 'Nomes (um por linha):';
+                    hintElement.textContent = 'Digite cada nome em uma linha separada';
+                    inputElement.placeholder = 'Exemplo:\nAsh\nMisty\nBrock\nGary';
+                    break;
+                    
+                case 'numbers':
+                    titleElement.textContent = 'Configurar Sorteio de Números';
+                    labelElement.textContent = 'Intervalo de números (ex: 1-100):';
+                    hintElement.textContent = 'Digite o intervalo no formato: número_min-número_max';
+                    inputElement.placeholder = 'Exemplo: 1-100';
+                    break;
+                    
+                case 'teams':
+                    titleElement.textContent = 'Adicione os Times para Sortear';
+                    labelElement.textContent = 'Times (um por linha):';
+                    hintElement.textContent = 'Digite cada time em uma linha separada';
+                    inputElement.placeholder = 'Exemplo:\nTime Valor\nTime Mystic\nTime Instinct';
+                    break;
+            }
+        }
+
+        // Função principal de sorteio
+        function draw() {
+            const inputData = document.getElementById('input-data').value.trim();
+            const drawCount = parseInt(document.getElementById('draw-count').value) || 1;
+            const allowDuplicates = document.getElementById('allow-duplicates').checked;
+            const saveHistory = document.getElementById('save-history').checked;
+            
+            let results = [];
+            let resultText = '';
+            let details = '';
+            
+            switch(appState.currentMode) {
+                case 'names':
+                    if (!inputData) {
+                        showError('Por favor, adicione alguns nomes para sortear.');
+                        return;
+                    }
+                    
+                    const names = inputData.split('\n').filter(name => name.trim() !== '');
+                    
+                    if (names.length === 0) {
+                        showError('Nenhum nome válido encontrado.');
+                        return;
+                    }
+                    
+                    if (!allowDuplicates && drawCount > names.length) {
+                        showError(`Não é possível sortear ${drawCount} itens únicos de uma lista com apenas ${names.length} itens.`);
+                        return;
+                    }
+                    
+                    results = drawItems(names, drawCount, allowDuplicates);
+                    resultText = results.join(', ');
+                    details = `Sorteados ${drawCount} de ${names.length} nomes`;
+                    break;
+                    
+                case 'numbers':
+                    const rangeMatch = inputData.match(/^(\d+)\s*-\s*(\d+)$/);
+                    if (!rangeMatch) {
+                        showError('Por favor, digite o intervalo no formato: número_min-número_max (ex: 1-100)');
+                        return;
+                    }
+                    
+                    const min = parseInt(rangeMatch[1]);
+                    const max = parseInt(rangeMatch[2]);
+                    
+                    if (min >= max) {
+                        showError('O número mínimo deve ser menor que o número máximo.');
+                        return;
+                    }
+                    
+                    if (!allowDuplicates && drawCount > (max - min + 1)) {
+                        showError(`Não é possível sortear ${drawCount} números únicos no intervalo ${min}-${max}.`);
+                        return;
+                    }
+                    
+                    results = drawNumbers(min, max, drawCount, allowDuplicates);
+                    resultText = results.join(', ');
+                    details = `Sorteados ${drawCount} números entre ${min} e ${max}`;
+                    break;
+                    
+                case 'teams':
+                    if (!inputData) {
+                        showError('Por favor, adicione alguns times para sortear.');
+                        return;
+                    }
+                    
+                    const teams = inputData.split('\n').filter(team => team.trim() !== '');
+                    
+                    if (teams.length === 0) {
+                        showError('Nenhum time válido encontrado.');
+                        return;
+                    }
+                    
+                    if (!allowDuplicates && drawCount > teams.length) {
+                        showError(`Não é possível sortear ${drawCount} times únicos de uma lista com apenas ${teams.length} times.`);
+                        return;
+                    }
+                    
+                    results = drawItems(teams, drawCount, allowDuplicates);
+                    resultText = results.join(', ');
+                    details = `Sorteados ${drawCount} de ${teams.length} times`;
+                    break;
+            }
+            
+            // Exibir resultado
+            displayResult(resultText, details);
+            
+            // Salvar no histórico se necessário
+            if (saveHistory) {
+                saveToHistory(results, details);
+            }
+        }
+
+        // Funções auxiliares para sorteio
+        function drawItems(items, count, allowDuplicates) {
+            const results = [];
+            const availableItems = [...items];
+            
+            for (let i = 0; i < count; i++) {
+                if (availableItems.length === 0) break;
+                
+                const randomIndex = Math.floor(Math.random() * availableItems.length);
+                results.push(availableItems[randomIndex]);
+                
+                if (!allowDuplicates) {
+                    availableItems.splice(randomIndex, 1);
+                }
+            }
+            
+            return results;
+        }
+
+        function drawNumbers(min, max, count, allowDuplicates) {
+            const results = [];
+            const availableNumbers = [];
+            
+            // Preencher array com todos os números possíveis
+            for (let i = min; i <= max; i++) {
+                availableNumbers.push(i);
+            }
+            
+            for (let i = 0; i < count; i++) {
+                if (availableNumbers.length === 0) break;
+                
+                const randomIndex = Math.floor(Math.random() * availableNumbers.length);
+                results.push(availableNumbers[randomIndex]);
+                
+                if (!allowDuplicates) {
+                    availableNumbers.splice(randomIndex, 1);
+                }
+            }
+            
+            return results;
+        }
+
+        // Exibir resultado com animação
+        function displayResult(result, details) {
+            const resultElement = document.getElementById('result-display');
+            const detailsElement = document.getElementById('result-details');
+            
+            resultElement.textContent = result;
+            detailsElement.textContent = details;
+            
+            // Adicionar animação
+            resultElement.classList.remove('result-animation');
+            void resultElement.offsetWidth; // Trigger reflow
+            resultElement.classList.add('result-animation');
+        }
+
+        function showError(message) {
+            displayResult('❌ Erro', message);
+        }
+
+        // Histórico
+        function saveToHistory(results, details) {
+            const historyItem = {
+                id: Date.now(),
+                mode: appState.currentMode,
+                results: results,
+                details: details,
+                timestamp: new Date().toLocaleString('pt-BR')
+            };
+            
+            appState.history.unshift(historyItem);
+            
+            // Manter apenas os últimos 20 itens
+            if (appState.history.length > 20) {
+                appState.history = appState.history.slice(0, 20);
+            }
+            
+            // Salvar no localStorage
+            localStorage.setItem('pokemonSorterHistory', JSON.stringify(appState.history));
+            
+            updateHistoryDisplay();
+        }
+
+        function updateHistoryDisplay() {
+            const historyList = document.getElementById('history-list');
+            
+            if (appState.history.length === 0) {
+                historyList.innerHTML = '<div class="history-item">Nenhum sorteio realizado ainda</div>';
+                return;
+            }
+            
+            historyList.innerHTML = '';
+            
+            appState.history.forEach(item => {
+                const historyItem = document.createElement('div');
+                historyItem.className = 'history-item';
+                
+                historyItem.innerHTML = `
+                    <div>
+                        <div>${item.results.join(', ')}</div>
+                        <div style="font-size: 0.8rem; color: #666;">${item.details} • ${item.timestamp}</div>
+                    </div>
+                    <div class="history-item-number">${getModeIcon(item.mode)}</div>
+                `;
+                
+                historyList.appendChild(historyItem);
+            });
+        }
+
+        function getModeIcon(mode) {
+            switch(mode) {
+                case 'names': return '🎯';
+                case 'numbers': return '🔢';
+                case 'teams': return '👥';
+                default: return '❓';
+            }
+        }
+
+        function clearHistory() {
+            if (confirm('Tem certeza que deseja limpar todo o histórico?')) {
+                appState.history = [];
+                localStorage.removeItem('pokemonSorterHistory');
+                updateHistoryDisplay();
+            }
+        }
+
+        // Exemplos prontos
+        function loadExample(exampleName) {
+            setMode('names'); // A maioria dos exemplos é de nomes
+            
+            switch(exampleName) {
+                case 'starterPokemon':
+                    document.getElementById('input-data').value = 'Bulbasaur\nCharmander\nSquirtle\nPikachu\nEevee\nChikorita\nCyndaquil\nTotodile';
+                    break;
+                    
+                case 'gymLeaders':
+                    document.getElementById('input-data').value = 'Brock\nMisty\nLt. Surge\nErika\nKoga\nSabrina\nBlaine\nGiovanni';
+                    break;
+                    
+                case 'lotoNumbers':
+                    setMode('numbers');
+                    document.getElementById('input-data').value = '1-60';
+                    document.getElementById('draw-count').value = '6';
+                    break;
+                    
+                case 'teamRocket':
+                    document.getElementById('input-data').value = 'Jessie\nJames\nMeowth\nGiovanni\nButch\nCassidy';
+                    break;
+            }
+        }
+
+        // Utilitários
+        function clearInput() {
+            document.getElementById('input-data').value = '';
+            document.getElementById('draw-count').value = '1';
+        }
+
+        function goBackToDrive() {
+            alert('Voltando para o PokeDrive...');
+            // window.location.href = 'pokedrive.html'; // Descomente quando integrar
+        }
+    </script>
+</body>
+</html>

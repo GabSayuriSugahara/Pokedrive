@@ -1,0 +1,1168 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PokeDrive - Seu Portfólio Pokémon</title>
+    <style>
+        :root {
+            --primary: #FF0000;
+            --secondary: #3B4CCA;
+            --accent: #FFDE00;
+            --light: #FFFFFF;
+            --dark: #2C2C2C;
+            --success: #4CAF50;
+            --warning: #FFC107;
+            --danger: #F44336;
+            --grass: #78C850;
+            --water: #6890F0;
+            --fire: #F08030;
+            --electric: #F8D030;
+            --psychic: #F85888;
+            --gray: #f5f5f5;
+            --border: #e0e0e0;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #ff0000 0%, #3b4cca 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            background-color: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+            position: relative;
+            min-height: 80vh;
+        }
+        
+        .pokeball-decoration {
+            position: absolute;
+            width: 150px;
+            height: 150px;
+            background: radial-gradient(circle at 50% 50%, var(--light) 40%, var(--dark) 40%, var(--dark) 45%, transparent 45%),
+                        linear-gradient(to bottom, var(--primary) 0%, var(--primary) 47%, var(--dark) 47%, var(--dark) 53%, var(--light) 53%, var(--light) 100%);
+            border-radius: 50%;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+            z-index: 1;
+        }
+        
+        .pokeball-1 {
+            top: -75px;
+            right: -75px;
+        }
+        
+        .pokeball-2 {
+            bottom: -75px;
+            left: -75px;
+        }
+        
+        header {
+            background-color: var(--primary);
+            color: var(--light);
+            padding: 20px;
+            text-align: center;
+            position: relative;
+            z-index: 2;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+        }
+        
+        .logo h1 {
+            font-size: 2.5rem;
+            text-shadow: 2px 2px 0 var(--secondary);
+            letter-spacing: 2px;
+        }
+        
+        .logo img {
+            height: 60px;
+        }
+        
+        .content {
+            padding: 30px;
+            position: relative;
+            z-index: 2;
+        }
+        
+        /* Estilos para as telas de login */
+        .login-container {
+            max-width: 400px;
+            margin: 0 auto;
+            background-color: var(--light);
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .login-tabs {
+            display: flex;
+            margin-bottom: 20px;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .login-tab {
+            flex: 1;
+            padding: 10px;
+            text-align: center;
+            cursor: pointer;
+            background-color: var(--gray);
+            border: none;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+        
+        .login-tab.active {
+            background-color: var(--secondary);
+            color: var(--light);
+        }
+        
+        .login-form {
+            display: none;
+        }
+        
+        .login-form.active {
+            display: block;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: var(--dark);
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--border);
+            border-radius: 5px;
+            font-size: 1rem;
+        }
+        
+        .btn {
+            display: block;
+            width: 100%;
+            padding: 12px;
+            background-color: var(--primary);
+            color: var(--light);
+            border: none;
+            border-radius: 5px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        .btn:hover {
+            background-color: var(--secondary);
+        }
+        
+        .error-message {
+            color: var(--danger);
+            margin-top: 10px;
+            text-align: center;
+            font-weight: bold;
+        }
+        
+        /* Estilos para a área do usuário */
+        .user-area {
+            display: none;
+        }
+        
+        .user-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid var(--secondary);
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .user-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background-color: var(--accent);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: var(--dark);
+        }
+        
+        .logout-btn {
+            background-color: var(--danger);
+            color: var(--light);
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        
+        /* Portfolio Grid */
+        .portfolio-title {
+            text-align: center;
+            margin-bottom: 30px;
+            color: var(--secondary);
+            font-size: 2rem;
+        }
+        
+        .portfolio-subtitle {
+            text-align: center;
+            margin-bottom: 40px;
+            color: var(--dark);
+            font-size: 1.1rem;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        .portfolio-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+        
+        .project-card {
+            background: var(--light);
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+            cursor: pointer;
+            border: 2px solid transparent;
+        }
+        
+        .project-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+            border-color: var(--accent);
+        }
+        
+        .project-image {
+            height: 200px;
+            background: linear-gradient(135deg, var(--secondary), var(--primary));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 4rem;
+            color: white;
+        }
+        
+        .project-content {
+            padding: 20px;
+        }
+        
+        .project-title {
+            font-size: 1.4rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: var(--secondary);
+        }
+        
+        .project-description {
+            color: #666;
+            margin-bottom: 15px;
+            line-height: 1.5;
+        }
+        
+        .project-features {
+            list-style: none;
+            margin-bottom: 20px;
+        }
+        
+        .project-features li {
+            padding: 5px 0;
+            color: #555;
+        }
+        
+        .project-features li::before {
+            content: "✓ ";
+            color: var(--success);
+            font-weight: bold;
+        }
+        
+        .project-btn {
+            display: block;
+            width: 100%;
+            padding: 12px;
+            background-color: var(--primary);
+            color: var(--light);
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            text-align: center;
+            text-decoration: none;
+        }
+        
+        .project-btn:hover {
+            background-color: var(--secondary);
+        }
+        
+        /* Estilos para área de admin */
+        .admin-area {
+            display: none;
+        }
+        
+        .admin-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .stat-card {
+            background-color: var(--light);
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .stat-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--primary);
+        }
+        
+        .user-list {
+            margin-top: 20px;
+        }
+        
+        .user-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        
+        .user-table th, .user-table td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .user-table th {
+            background-color: var(--secondary);
+            color: var(--light);
+        }
+        
+        .user-table tr:hover {
+            background-color: var(--gray);
+        }
+        
+        .action-btn {
+            padding: 5px 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            margin-right: 5px;
+        }
+        
+        .edit-btn {
+            background-color: var(--warning);
+            color: var(--dark);
+        }
+        
+        .delete-btn {
+            background-color: var(--danger);
+            color: var(--light);
+        }
+        
+        /* Project Viewer - CORRIGIDO */
+        .project-viewer {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.9);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .project-frame {
+            width: 98%;
+            height: 98%;
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .project-header {
+            background-color: var(--primary);
+            color: white;
+            padding: 15px 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-shrink: 0;
+        }
+        
+        .project-title-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .project-icon {
+            font-size: 1.5rem;
+        }
+        
+        .close-project {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 2rem;
+            cursor: pointer;
+            padding: 5px 10px;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+        
+        .close-project:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+        
+        .project-iframe-container {
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .project-iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            display: block;
+        }
+        
+        .project-not-found {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            padding: 40px;
+            text-align: center;
+            background: #f8f8f8;
+        }
+        
+        .project-not-found-icon {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            color: #ccc;
+        }
+        
+        .loading-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            background: #f8f8f8;
+        }
+        
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 20px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* Responsividade */
+        @media (max-width: 768px) {
+            .logo h1 {
+                font-size: 1.8rem;
+            }
+            
+            .portfolio-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .admin-stats {
+                grid-template-columns: 1fr;
+            }
+            
+            .user-header {
+                flex-direction: column;
+                gap: 15px;
+                text-align: center;
+            }
+            
+            .project-frame {
+                width: 100%;
+                height: 100%;
+                border-radius: 0;
+            }
+            
+            .project-header {
+                padding: 12px 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="pokeball-decoration pokeball-1"></div>
+        <div class="pokeball-decoration pokeball-2"></div>
+        
+        <header>
+            <div class="logo">
+                <h1>PokeDrive</h1>
+                <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj48cGF0aCBmaWxsPSIjZmZmZmZmIiBkPSJNMjU2IDI1Nk0xMjggMzUyTDEyOCAxNjBMMzg0IDE2ME0zODQgMzUyTDI1NiAyNTZaIi8+PHBhdGggZmlsbD0iI2ZmZmZmZiIgZD0iTTI1NiA0NDhDMzU4LjUgNDQ4IDQ0OCAzNTguNSA0NDggMjU2UzM1OC41IDY0IDI1NiA2NFM2NCAxNTMuNSA2NCAyNTZTNTEzLjUgNDQ4IDI1NiA0NDhaIiBzdHJva2U9IiNmZmZmZmYiIHN0cm9rZS13aWR0aD0iMTYiLz48L3N2Zz4=" alt="Pokeball">
+            </div>
+        </header>
+        
+        <div class="content">
+            <!-- Tela de Login -->
+            <div id="login-screen" class="login-container">
+                <div class="login-tabs">
+                    <button class="login-tab active" onclick="showLoginForm('user')">Usuário</button>
+                    <button class="login-tab" onclick="showLoginForm('admin')">Administrador</button>
+                </div>
+                
+                <div id="user-login" class="login-form active">
+                    <h2>Login de Usuário</h2>
+                    <div class="form-group">
+                        <label for="user-username">Nome de usuário:</label>
+                        <input type="text" id="user-username" placeholder="Digite seu usuário">
+                    </div>
+                    <div class="form-group">
+                        <label for="user-password">Senha:</label>
+                        <input type="password" id="user-password" placeholder="Digite sua senha">
+                    </div>
+                    <button class="btn" onclick="loginUser()">Entrar</button>
+                    <p style="text-align: center; margin-top: 15px;">
+                        <a href="#" onclick="showRegisterForm()">Criar uma conta</a>
+                    </p>
+                    <div id="user-error" class="error-message"></div>
+                </div>
+                
+                <div id="admin-login" class="login-form">
+                    <h2>Login de Administrador</h2>
+                    <div class="form-group">
+                        <label for="admin-username">Nome de usuário:</label>
+                        <input type="text" id="admin-username" placeholder="Digite seu usuário">
+                    </div>
+                    <div class="form-group">
+                        <label for="admin-password">Senha:</label>
+                        <input type="password" id="admin-password" placeholder="Digite sua senha">
+                    </div>
+                    <button class="btn" onclick="loginAdmin()">Entrar</button>
+                    <div id="admin-error" class="error-message"></div>
+                </div>
+                
+                <div id="register-form" class="login-form">
+                    <h2>Criar Conta de Usuário</h2>
+                    <div class="form-group">
+                        <label for="reg-username">Nome de usuário:</label>
+                        <input type="text" id="reg-username" placeholder="Digite um nome de usuário">
+                    </div>
+                    <div class="form-group">
+                        <label for="reg-email">E-mail:</label>
+                        <input type="email" id="reg-email" placeholder="Digite seu e-mail">
+                    </div>
+                    <div class="form-group">
+                        <label for="reg-password">Senha:</label>
+                        <input type="password" id="reg-password" placeholder="Digite uma senha">
+                    </div>
+                    <div class="form-group">
+                        <label for="reg-confirm-password">Confirmar Senha:</label>
+                        <input type="password" id="reg-confirm-password" placeholder="Confirme sua senha">
+                    </div>
+                    <button class="btn" onclick="registerUser()">Criar Conta</button>
+                    <p style="text-align: center; margin-top: 15px;">
+                        <a href="#" onclick="showLoginForm('user')">Voltar ao login</a>
+                    </p>
+                    <div id="register-error" class="error-message"></div>
+                </div>
+            </div>
+            
+            <!-- Área do Usuário (Portfolio) -->
+            <div id="user-area" class="user-area">
+                <div class="user-header">
+                    <div class="user-info">
+                        <div class="user-avatar" id="user-avatar">U</div>
+                        <div>
+                            <h2 id="user-greeting">Olá, Treinador!</h2>
+                            <p id="user-email"></p>
+                        </div>
+                    </div>
+                    <button class="logout-btn" onclick="logout()">Sair</button>
+                </div>
+                
+                <h1 class="portfolio-title">Meu Portfólio Pokémon</h1>
+                <p class="portfolio-subtitle">
+                    Explore meus projetos desenvolvidos com paixão pelo universo Pokémon. 
+                    Cada jogo foi criado com HTML, CSS e JavaScript puro.
+                </p>
+                
+                <div class="portfolio-grid">
+                    <!-- Sorteador Pokémon -->
+                    <div class="project-card">
+                        <div class="project-image">
+                            🎲
+                        </div>
+                        <div class="project-content">
+                            <h3 class="project-title">Sorteador Pokémon</h3>
+                            <p class="project-description">
+                                Um sistema de sorteio versátil com múltiplos modos para randomizar nomes, 
+                                números e times no universo Pokémon.
+                            </p>
+                            <ul class="project-features">
+                                <li>Três modos de sorteio diferentes</li>
+                                <li>Histórico de resultados</li>
+                                <li>Exemplos pré-configurados</li>
+                                <li>Interface responsiva</li>
+                            </ul>
+                            <button class="project-btn" onclick="openProject('sorter')">Abrir Sorteador</button>
+                        </div>
+                    </div>
+                    
+                    <!-- Jogo da Velha Pokémon -->
+                    <div class="project-card">
+                        <div class="project-image">
+                            ❌⭕
+                        </div>
+                        <div class="project-content">
+                            <h3 class="project-title">Jogo da Velha Pokémon</h3>
+                            <p class="project-description">
+                                Um clássico jogo da velha com tema Pokémon, onde você enfrenta o Prof. Carvalho 
+                                em batalhas estratégicas.
+                            </p>
+                            <ul class="project-features">
+                                <li>Três níveis de dificuldade</li>
+                                <li>Sistema de estatísticas</li>
+                                <li>Histórico de partidas</li>
+                                <li>Design Pokémon autêntico</li>
+                            </ul>
+                            <button class="project-btn" onclick="openProject('tictactoe')">Abrir Jogo</button>
+                        </div>
+                    </div>
+                    
+                    <!-- Damas Pokémon -->
+                    <div class="project-card">
+                        <div class="project-image">
+                            ♟️
+                        </div>
+                        <div class="project-content">
+                            <h3 class="project-title">Damas Pokémon</h3>
+                            <p class="project-description">
+                                O tradicional jogo de damas adaptado para o mundo Pokémon, com peças temáticas 
+                                e mecânicas de captura especiais.
+                            </p>
+                            <ul class="project-features">
+                                <li>Tabuleiro 8x8 tradicional</li>
+                                <li>Sistema de damas</li>
+                                <li>IA desafiante</li>
+                                <li>Contador de peças</li>
+                            </ul>
+                            <button class="project-btn" onclick="openProject('damas')">Abrir Jogo</button>
+                        </div>
+                    </div>
+
+                    <!-- Quiz Pokémon -->
+                    <div class="project-card">
+                        <div class="project-image">
+                            ❓
+                        </div>
+                        <div class="project-content">
+                            <h3 class="project-title">Quiz Pokémon</h3>
+                            <p class="project-description">
+                                Teste seus conhecimentos sobre o universo Pokémon com este quiz interativo. 
+                                Modo administrador para criar e gerenciar perguntas.
+                            </p>
+                            <ul class="project-features">
+                                <li>Modo jogador e administrador</li>
+                                <li>Sistema de pontuação</li>
+                                <li>Gerenciamento de perguntas</li>
+                                <li>Design Pokémon autêntico</li>
+                                <li>6 perguntas iniciais incluídas</li>
+                            </ul>
+                            <button class="project-btn" onclick="openProject('quiz')">Abrir Quiz</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Área do Administrador -->
+            <div id="admin-area" class="admin-area">
+                <div class="user-header">
+                    <div class="user-info">
+                        <div class="user-avatar" style="background-color: var(--primary);">A</div>
+                        <div>
+                            <h2>Painel de Administração</h2>
+                            <p>Bem-vindo, Administrador!</p>
+                        </div>
+                    </div>
+                    <button class="logout-btn" onclick="logout()">Sair</button>
+                </div>
+                
+                <div class="admin-stats">
+                    <div class="stat-card">
+                        <div class="stat-value" id="total-users">0</div>
+                        <div>Usuários Cadastrados</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="total-files">4</div>
+                        <div>Projetos no Portfólio</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="storage-used">100%</div>
+                        <div>Portfólio Completo</div>
+                    </div>
+                </div>
+                
+                <div class="user-list">
+                    <h3>Gerenciar Usuários</h3>
+                    <table class="user-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Nome de Usuário</th>
+                                <th>E-mail</th>
+                                <th>Data de Registro</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="users-table-body">
+                            <!-- Usuários serão carregados aqui dinamicamente -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Visualizador de Projetos - CORRIGIDO -->
+    <div id="project-viewer" class="project-viewer">
+        <div class="project-frame">
+            <div class="project-header">
+                <div class="project-title-container">
+                    <span class="project-icon" id="project-icon">🎮</span>
+                    <h3 id="project-viewer-title">Carregando...</h3>
+                </div>
+                <button class="close-project" onclick="closeProject()" title="Fechar (ESC)">&times;</button>
+            </div>
+            <div class="project-iframe-container">
+                <div id="loading-container" class="loading-container">
+                    <div class="loading-spinner"></div>
+                    <p>Carregando projeto...</p>
+                </div>
+                <iframe id="project-iframe" class="project-iframe" style="display: none;"></iframe>
+                <div id="project-error" class="project-not-found" style="display: none;">
+                    <div class="project-not-found-icon">❌</div>
+                    <h3>Erro ao Carregar</h3>
+                    <p id="error-message">O projeto não pôde ser carregado.</p>
+                    <button class="btn" onclick="closeProject()" style="margin-top: 20px; background-color: var(--primary);">
+                        Fechar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Dados simulados
+        let users = JSON.parse(localStorage.getItem('pokedrive_users')) || [
+            { id: 1, username: 'ash', email: 'ash@pokemon.com', password: 'pikachu123', registrationDate: '2023-01-15' },
+            { id: 2, username: 'misty', email: 'misty@pokemon.com', password: 'starmie456', registrationDate: '2023-02-20' }
+        ];
+        
+        let adminUsers = JSON.parse(localStorage.getItem('pokedrive_admins')) || [
+            { username: 'admin', password: 'admin123' }
+        ];
+        
+        let currentUser = null;
+        let isAdmin = false;
+
+        // URLs e ícones dos projetos
+        const projectData = {
+            'sorter': {
+                url: 'sorteador.html',
+                title: 'Sorteador Pokémon',
+                icon: '🎲'
+            },
+            'tictactoe': {
+                url: 'jogo_velha.html',
+                title: 'Jogo da Velha Pokémon', 
+                icon: '❌⭕'
+            },
+            'damas': {
+                url: 'damas.html',
+                title: 'Damas Pokémon',
+                icon: '♟️'
+            },
+            'quiz': {
+                url: 'quiz.html',
+                title: 'Quiz Pokémon',
+                icon: '❓'
+            }
+        };
+
+        // Inicialização
+        document.addEventListener('DOMContentLoaded', function() {
+            const savedUser = localStorage.getItem('pokedrive_current_user');
+            const savedIsAdmin = localStorage.getItem('pokedrive_is_admin');
+            
+            if (savedUser && savedIsAdmin) {
+                currentUser = JSON.parse(savedUser);
+                isAdmin = JSON.parse(savedIsAdmin);
+                
+                if (isAdmin) {
+                    showAdminArea();
+                } else {
+                    showUserArea();
+                }
+            } else {
+                showLoginScreen();
+            }
+        });
+        
+        // Funções de navegação
+        function showLoginScreen() {
+            document.getElementById('login-screen').style.display = 'block';
+            document.getElementById('user-area').style.display = 'none';
+            document.getElementById('admin-area').style.display = 'none';
+        }
+        
+        function showUserArea() {
+            document.getElementById('login-screen').style.display = 'none';
+            document.getElementById('user-area').style.display = 'block';
+            document.getElementById('admin-area').style.display = 'none';
+            
+            document.getElementById('user-greeting').textContent = `Olá, ${currentUser.username}!`;
+            document.getElementById('user-email').textContent = currentUser.email;
+            document.getElementById('user-avatar').textContent = currentUser.username.charAt(0).toUpperCase();
+        }
+        
+        function showAdminArea() {
+            document.getElementById('login-screen').style.display = 'none';
+            document.getElementById('user-area').style.display = 'none';
+            document.getElementById('admin-area').style.display = 'block';
+            
+            updateAdminStats();
+            loadUsersTable();
+        }
+        
+        function showLoginForm(type) {
+            document.querySelectorAll('.login-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            document.querySelectorAll('.login-form').forEach(form => {
+                form.classList.remove('active');
+            });
+            
+            if (type === 'user') {
+                document.querySelector('.login-tab:nth-child(1)').classList.add('active');
+                document.getElementById('user-login').classList.add('active');
+            } else {
+                document.querySelector('.login-tab:nth-child(2)').classList.add('active');
+                document.getElementById('admin-login').classList.add('active');
+            }
+            
+            document.getElementById('user-error').textContent = '';
+            document.getElementById('admin-error').textContent = '';
+        }
+        
+        function showRegisterForm() {
+            document.querySelectorAll('.login-form').forEach(form => {
+                form.classList.remove('active');
+            });
+            document.getElementById('register-form').classList.add('active');
+            document.getElementById('register-error').textContent = '';
+        }
+        
+        // Funções de autenticação
+        function loginUser() {
+            const username = document.getElementById('user-username').value;
+            const password = document.getElementById('user-password').value;
+            const errorElement = document.getElementById('user-error');
+            
+            if (!username || !password) {
+                errorElement.textContent = 'Por favor, preencha todos os campos.';
+                return;
+            }
+            
+            const user = users.find(u => u.username === username && u.password === password);
+            
+            if (user) {
+                currentUser = user;
+                isAdmin = false;
+                
+                localStorage.setItem('pokedrive_current_user', JSON.stringify(currentUser));
+                localStorage.setItem('pokedrive_is_admin', JSON.stringify(isAdmin));
+                
+                showUserArea();
+            } else {
+                errorElement.textContent = 'Nome de usuário ou senha incorretos.';
+            }
+        }
+        
+        function loginAdmin() {
+            const username = document.getElementById('admin-username').value;
+            const password = document.getElementById('admin-password').value;
+            const errorElement = document.getElementById('admin-error');
+            
+            if (!username || !password) {
+                errorElement.textContent = 'Por favor, preencha todos os campos.';
+                return;
+            }
+            
+            const admin = adminUsers.find(a => a.username === username && a.password === password);
+            
+            if (admin) {
+                currentUser = { username: 'admin' };
+                isAdmin = true;
+                
+                localStorage.setItem('pokedrive_current_user', JSON.stringify(currentUser));
+                localStorage.setItem('pokedrive_is_admin', JSON.stringify(isAdmin));
+                
+                showAdminArea();
+            } else {
+                errorElement.textContent = 'Credenciais de administrador incorretas.';
+            }
+        }
+        
+        function registerUser() {
+            const username = document.getElementById('reg-username').value;
+            const email = document.getElementById('reg-email').value;
+            const password = document.getElementById('reg-password').value;
+            const confirmPassword = document.getElementById('reg-confirm-password').value;
+            const errorElement = document.getElementById('register-error');
+            
+            if (!username || !email || !password || !confirmPassword) {
+                errorElement.textContent = 'Por favor, preencha todos os campos.';
+                return;
+            }
+            
+            if (password !== confirmPassword) {
+                errorElement.textContent = 'As senhas não coincidem.';
+                return;
+            }
+            
+            if (password.length < 6) {
+                errorElement.textContent = 'A senha deve ter pelo menos 6 caracteres.';
+                return;
+            }
+            
+            if (users.find(u => u.username === username)) {
+                errorElement.textContent = 'Este nome de usuário já está em uso.';
+                return;
+            }
+            
+            if (users.find(u => u.email === email)) {
+                errorElement.textContent = 'Este e-mail já está cadastrado.';
+                return;
+            }
+            
+            const newUser = {
+                id: users.length > 0 ? Math.max(...users.map(u => u.id)) + 1 : 1,
+                username,
+                email,
+                password,
+                registrationDate: new Date().toISOString().split('T')[0]
+            };
+            
+            users.push(newUser);
+            localStorage.setItem('pokedrive_users', JSON.stringify(users));
+            
+            document.getElementById('reg-username').value = '';
+            document.getElementById('reg-email').value = '';
+            document.getElementById('reg-password').value = '';
+            document.getElementById('reg-confirm-password').value = '';
+            
+            errorElement.style.color = 'var(--success)';
+            errorElement.textContent = 'Conta criada com sucesso! Faça login para continuar.';
+            
+            setTimeout(() => {
+                showLoginForm('user');
+                errorElement.style.color = 'var(--danger)';
+            }, 2000);
+        }
+        
+        function logout() {
+            currentUser = null;
+            isAdmin = false;
+            
+            localStorage.removeItem('pokedrive_current_user');
+            localStorage.removeItem('pokedrive_is_admin');
+            
+            showLoginScreen();
+        }
+        
+        // Funções de projetos - CORRIGIDAS
+        function openProject(projectId) {
+            const project = projectData[projectId];
+            
+            if (!project) {
+                showError('Projeto não encontrado!');
+                return;
+            }
+            
+            // Mostrar visualizador
+            document.getElementById('project-viewer').style.display = 'flex';
+            document.getElementById('project-viewer-title').textContent = project.title;
+            document.getElementById('project-icon').textContent = project.icon;
+            
+            // Mostrar loading
+            document.getElementById('loading-container').style.display = 'flex';
+            document.getElementById('project-iframe').style.display = 'none';
+            document.getElementById('project-error').style.display = 'none';
+            
+            // Configurar iframe
+            const iframe = document.getElementById('project-iframe');
+            iframe.src = project.url;
+            
+            // Configurar eventos do iframe
+            iframe.onload = function() {
+                document.getElementById('loading-container').style.display = 'none';
+                document.getElementById('project-iframe').style.display = 'block';
+                
+                // Ajustar o iframe para ocupar toda a área
+                setTimeout(() => {
+                    try {
+                        iframe.contentDocument.body.style.margin = '0';
+                        iframe.contentDocument.body.style.padding = '0';
+                        iframe.contentDocument.body.style.overflow = 'hidden';
+                    } catch (e) {
+                        // Ignora erros de cross-origin
+                    }
+                }, 100);
+            };
+            
+            iframe.onerror = function() {
+                document.getElementById('loading-container').style.display = 'none';
+                document.getElementById('project-error').style.display = 'flex';
+                document.getElementById('error-message').textContent = 
+                    `Não foi possível carregar o arquivo: ${project.url}`;
+            };
+        }
+        
+        function closeProject() {
+            document.getElementById('project-viewer').style.display = 'none';
+            const iframe = document.getElementById('project-iframe');
+            iframe.src = '';
+            
+            // Resetar estados
+            document.getElementById('loading-container').style.display = 'flex';
+            document.getElementById('project-iframe').style.display = 'none';
+            document.getElementById('project-error').style.display = 'none';
+        }
+        
+        function showError(message) {
+            alert(message);
+            console.error(message);
+        }
+        
+        // Funções de administração
+        function updateAdminStats() {
+            document.getElementById('total-users').textContent = users.length;
+        }
+        
+        function loadUsersTable() {
+            const usersTableBody = document.getElementById('users-table-body');
+            usersTableBody.innerHTML = '';
+            
+            users.forEach(user => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${user.id}</td>
+                    <td>${user.username}</td>
+                    <td>${user.email}</td>
+                    <td>${user.registrationDate}</td>
+                    <td>
+                        <button class="action-btn edit-btn" onclick="editUser(${user.id})">Editar</button>
+                        <button class="action-btn delete-btn" onclick="deleteUser(${user.id})">Excluir</button>
+                    </td>
+                `;
+                usersTableBody.appendChild(row);
+            });
+        }
+        
+        function editUser(userId) {
+            const user = users.find(u => u.id === userId);
+            if (user) {
+                const newUsername = prompt('Novo nome de usuário:', user.username);
+                if (newUsername && newUsername !== user.username) {
+                    user.username = newUsername;
+                    localStorage.setItem('pokedrive_users', JSON.stringify(users));
+                    loadUsersTable();
+                    alert('Usuário atualizado com sucesso!');
+                }
+            }
+        }
+        
+        function deleteUser(userId) {
+            if (confirm('Tem certeza que deseja excluir este usuário? Esta ação não pode ser desfeita.')) {
+                if (currentUser && currentUser.id === userId) {
+                    alert('Você não pode excluir sua própria conta enquanto estiver logado.');
+                    return;
+                }
+                
+                users = users.filter(u => u.id !== userId);
+                localStorage.setItem('pokedrive_users', JSON.stringify(users));
+                
+                updateAdminStats();
+                loadUsersTable();
+                alert('Usuário excluído com sucesso!');
+            }
+        }
+
+        // Adicionar evento de tecla ESC para fechar o projeto
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                closeProject();
+            }
+        });
+    </script>
+</body>
+</html>

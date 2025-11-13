@@ -1,0 +1,1088 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz Pokémon - PokeDrive</title>
+    <style>
+        :root {
+            --primary: #FF0000;
+            --secondary: #3B4CCA;
+            --accent: #FFDE00;
+            --light: #FFFFFF;
+            --dark: #2C2C2C;
+            --grass: #78C850;
+            --water: #6890F0;
+            --fire: #F08030;
+            --electric: #F8D030;
+            --psychic: #F85888;
+            --ice: #98D8D8;
+            --fighting: #C03028;
+            --poison: #A040A0;
+            --ground: #E0C068;
+            --success: #4CAF50;
+            --danger: #F44336;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 1000px;
+            background-color: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .pokeball-decoration {
+            position: absolute;
+            width: 100px;
+            height: 100px;
+            background: radial-gradient(circle at 50% 50%, var(--light) 40%, var(--dark) 40%, var(--dark) 45%, transparent 45%),
+                        linear-gradient(to bottom, var(--primary) 0%, var(--primary) 47%, var(--dark) 47%, var(--dark) 53%, var(--light) 53%, var(--light) 100%);
+            border-radius: 50%;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+            z-index: 1;
+        }
+        
+        .pokeball-1 {
+            top: -50px;
+            right: -50px;
+        }
+        
+        .pokeball-2 {
+            bottom: -50px;
+            left: -50px;
+        }
+        
+        header {
+            background-color: var(--primary);
+            color: var(--light);
+            padding: 20px;
+            text-align: center;
+            position: relative;
+            z-index: 2;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+        }
+        
+        .logo h1 {
+            font-size: 2.2rem;
+            text-shadow: 2px 2px 0 var(--secondary);
+            letter-spacing: 2px;
+        }
+        
+        .logo img {
+            height: 50px;
+        }
+        
+        .content {
+            padding: 25px;
+            position: relative;
+            z-index: 2;
+        }
+        
+        /* Modo Jogador */
+        .quiz-player {
+            display: none;
+        }
+        
+        .quiz-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding: 15px;
+            background: linear-gradient(to right, var(--secondary), var(--primary));
+            border-radius: 10px;
+            color: white;
+        }
+        
+        .player-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .player-avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background-color: var(--accent);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: var(--dark);
+            font-size: 1.5rem;
+        }
+        
+        .quiz-stats {
+            display: flex;
+            gap: 20px;
+        }
+        
+        .stat-item {
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+        
+        .stat-label {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+        
+        .quiz-container {
+            background-color: #f8f8f8;
+            border-radius: 10px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .question-counter {
+            font-size: 0.9rem;
+            color: #666;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        
+        .question-text {
+            font-size: 1.3rem;
+            font-weight: bold;
+            margin-bottom: 20px;
+            text-align: center;
+            color: var(--secondary);
+            line-height: 1.4;
+        }
+        
+        .options-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .option-btn {
+            padding: 15px;
+            background-color: white;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: left;
+        }
+        
+        .option-btn:hover {
+            border-color: var(--secondary);
+            transform: translateY(-2px);
+        }
+        
+        .option-btn.correct {
+            background-color: rgba(76, 175, 80, 0.2);
+            border-color: var(--success);
+            color: var(--success);
+        }
+        
+        .option-btn.incorrect {
+            background-color: rgba(244, 67, 54, 0.2);
+            border-color: var(--danger);
+            color: var(--danger);
+        }
+        
+        .quiz-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 20px;
+        }
+        
+        .btn {
+            padding: 12px 25px;
+            background-color: var(--primary);
+            color: var(--light);
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2);
+        }
+        
+        .btn:hover {
+            background-color: var(--secondary);
+            transform: translateY(-2px);
+        }
+        
+        .btn-next {
+            background-color: var(--electric);
+            color: var(--dark);
+        }
+        
+        .btn-back {
+            background-color: var(--psychic);
+        }
+        
+        .btn-restart {
+            background-color: var(--grass);
+        }
+        
+        .result-section {
+            display: none;
+            text-align: center;
+            padding: 30px;
+            background: linear-gradient(135deg, var(--secondary), var(--primary));
+            border-radius: 10px;
+            color: white;
+            margin-top: 20px;
+        }
+        
+        .result-title {
+            font-size: 2rem;
+            margin-bottom: 15px;
+        }
+        
+        .result-score {
+            font-size: 3rem;
+            font-weight: bold;
+            margin: 20px 0;
+        }
+        
+        .result-message {
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+            opacity: 0.9;
+        }
+        
+        /* Modo Administrador */
+        .quiz-admin {
+            display: none;
+        }
+        
+        .admin-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding: 15px;
+            background: linear-gradient(to right, var(--secondary), var(--primary));
+            border-radius: 10px;
+            color: white;
+        }
+        
+        .admin-stats {
+            display: flex;
+            gap: 20px;
+        }
+        
+        .questions-list {
+            background-color: #f8f8f8;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        .question-item {
+            background-color: white;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            border-left: 4px solid var(--secondary);
+        }
+        
+        .question-item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .question-item-text {
+            font-weight: bold;
+            color: var(--secondary);
+            margin-bottom: 10px;
+        }
+        
+        .question-options {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        
+        .option-item {
+            padding: 8px;
+            background-color: #f5f5f5;
+            border-radius: 5px;
+            font-size: 0.9rem;
+        }
+        
+        .option-item.correct {
+            background-color: rgba(76, 175, 80, 0.2);
+            border-left: 3px solid var(--success);
+        }
+        
+        .question-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .action-btn {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+        
+        .edit-btn {
+            background-color: var(--warning);
+            color: var(--dark);
+        }
+        
+        .delete-btn {
+            background-color: var(--danger);
+            color: white;
+        }
+        
+        .question-form {
+            background-color: #f8f8f8;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: var(--dark);
+        }
+        
+        .form-group input, .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1rem;
+        }
+        
+        .form-group textarea {
+            height: 80px;
+            resize: vertical;
+        }
+        
+        .options-form {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .option-form-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .option-form-group input[type="text"] {
+            flex: 1;
+        }
+        
+        .option-form-group input[type="radio"] {
+            width: auto;
+        }
+        
+        .form-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+        
+        .btn-cancel {
+            background-color: #666;
+        }
+        
+        .btn-save {
+            background-color: var(--success);
+        }
+        
+        /* Toast Notifications */
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            background-color: white;
+            border-radius: 5px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+            border-left: 4px solid var(--success);
+            transform: translateX(400px);
+            transition: transform 0.3s;
+            z-index: 1000;
+        }
+        
+        .toast.show {
+            transform: translateX(0);
+        }
+        
+        .toast.error {
+            border-left-color: var(--danger);
+        }
+        
+        /* Loading Animation */
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: var(--light);
+            animation: spin 1s ease-in-out infinite;
+            margin-right: 10px;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        @media (max-width: 768px) {
+            .options-grid, .options-form, .question-options {
+                grid-template-columns: 1fr;
+            }
+            
+            .quiz-header, .admin-header {
+                flex-direction: column;
+                gap: 15px;
+                text-align: center;
+            }
+            
+            .quiz-stats, .admin-stats {
+                justify-content: center;
+            }
+            
+            .quiz-controls {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="pokeball-decoration pokeball-1"></div>
+        <div class="pokeball-decoration pokeball-2"></div>
+        
+        <header>
+            <div class="logo">
+                <h1>Quiz Pokémon</h1>
+                <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj48cGF0aCBmaWxsPSIjZmZmZmZmIiBkPSJNMjU2IDI1Nk0xMjggMzUyTDEyOCAxNjBMMzg0IDE2ME0zODQgMzUyTDI1NiAyNTZaIi8+PHBhdGggZmlsbD0iI2ZmZmZmZiIgZD0iTTI1NiA0NDhDMzU4LjUgNDQ4IDQ0OCAzNTguNSA0NDggMjU2UzM1OC41IDY0IDI1NiA2NFM2NCAxNTMuNSA2NCAyNTZTNTEzLjUgNDQ4IDI1NiA0NDhaIiBzdHJva2U9IiNmZmZmZmYiIHN0cm9rZS13aWR0aD0iMTYiLz48L3N2Zz4=" alt="Pokeball">
+            </div>
+        </header>
+        
+        <div class="content">
+            <!-- Modo Jogador -->
+            <div id="quiz-player" class="quiz-player">
+                <div class="quiz-header">
+                    <div class="player-info">
+                        <div class="player-avatar">T</div>
+                        <div>
+                            <h2 id="player-name">Treinador</h2>
+                            <p>Teste seus conhecimentos Pokémon!</p>
+                        </div>
+                    </div>
+                    
+                    <div class="quiz-stats">
+                        <div class="stat-item">
+                            <div class="stat-value" id="current-question">1</div>
+                            <div class="stat-label">Pergunta</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value" id="score">0</div>
+                            <div class="stat-label">Pontos</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value" id="correct-answers">0</div>
+                            <div class="stat-label">Acertos</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="quiz-container">
+                    <div class="question-counter">
+                        Pergunta <span id="question-number">1</span> de <span id="total-questions">0</span>
+                    </div>
+                    <div class="question-text" id="question-text">
+                        Carregando pergunta...
+                    </div>
+                    
+                    <div class="options-grid" id="options-container">
+                        <!-- Opções serão geradas dinamicamente -->
+                    </div>
+                    
+                    <div class="quiz-controls">
+                        <button class="btn btn-back" onclick="goBackToDrive()">Voltar ao PokeDrive</button>
+                        <button class="btn btn-restart" onclick="restartQuiz()" id="restart-btn" style="display: none;">Jogar Novamente</button>
+                        <button class="btn btn-next" onclick="nextQuestion()" id="next-btn" style="display: none;">Próxima Pergunta</button>
+                    </div>
+                </div>
+                
+                <div class="result-section" id="result-section">
+                    <div class="result-title">Quiz Concluído!</div>
+                    <div class="result-score" id="final-score">0/0</div>
+                    <div class="result-message" id="result-message">
+                        Parabéns pelo seu conhecimento Pokémon!
+                    </div>
+                    <button class="btn btn-restart" onclick="restartQuiz()">Jogar Novamente</button>
+                </div>
+            </div>
+            
+            <!-- Modo Administrador -->
+            <div id="quiz-admin" class="quiz-admin">
+                <div class="admin-header">
+                    <div class="player-info">
+                        <div class="player-avatar" style="background-color: var(--primary);">A</div>
+                        <div>
+                            <h2>Gerenciador de Quiz</h2>
+                            <p>Adicione e edite perguntas do quiz</p>
+                        </div>
+                    </div>
+                    
+                    <div class="admin-stats">
+                        <div class="stat-item">
+                            <div class="stat-value" id="total-questions-admin">0</div>
+                            <div class="stat-label">Perguntas</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value" id="active-questions">0</div>
+                            <div class="stat-label">Ativas</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="questions-list" id="questions-list">
+                    <!-- Lista de perguntas será gerada aqui -->
+                </div>
+                
+                <div class="question-form" id="question-form">
+                    <h3 id="form-title">Adicionar Nova Pergunta</h3>
+                    
+                    <div class="form-group">
+                        <label for="question-text-input">Pergunta:</label>
+                        <textarea id="question-text-input" placeholder="Digite a pergunta..."></textarea>
+                    </div>
+                    
+                    <div class="options-form">
+                        <div class="option-form-group">
+                            <input type="radio" name="correct-option" id="correct-option-1" value="0">
+                            <input type="text" id="option-1" placeholder="Opção 1">
+                        </div>
+                        
+                        <div class="option-form-group">
+                            <input type="radio" name="correct-option" id="correct-option-2" value="1">
+                            <input type="text" id="option-2" placeholder="Opção 2">
+                        </div>
+                        
+                        <div class="option-form-group">
+                            <input type="radio" name="correct-option" id="correct-option-3" value="2">
+                            <input type="text" id="option-3" placeholder="Opção 3">
+                        </div>
+                        
+                        <div class="option-form-group">
+                            <input type="radio" name="correct-option" id="correct-option-4" value="3">
+                            <input type="text" id="option-4" placeholder="Opção 4">
+                        </div>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button class="btn btn-cancel" onclick="cancelEdit()">Cancelar</button>
+                        <button class="btn btn-save" onclick="saveQuestion()">Salvar Pergunta</button>
+                    </div>
+                </div>
+                
+                <div class="quiz-controls">
+                    <button class="btn btn-back" onclick="goBackToDrive()">Voltar ao PokeDrive</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div id="toast-container"></div>
+
+    <script>
+        // Dados do Quiz
+        let quizData = JSON.parse(localStorage.getItem('pokemonQuizData')) || [
+            {
+                id: 1,
+                question: "Qual é o Pokémon número 001 na Pokédex?",
+                options: ["Charmander", "Bulbasaur", "Squirtle", "Pikachu"],
+                correctAnswer: 1,
+                active: true
+            },
+            {
+                id: 2,
+                question: "Qual tipo é supereficaz contra Pokémon do tipo Água?",
+                options: ["Fogo", "Elétrico", "Grama", "Pedra"],
+                correctAnswer: 2,
+                active: true
+            },
+            {
+                id: 3,
+                question: "Quem é o líder do ginásio de Cerulean?",
+                options: ["Brock", "Misty", "Lt. Surge", "Erika"],
+                correctAnswer: 1,
+                active: true
+            },
+            {
+                id: 4,
+                question: "Qual destes Pokémon é do tipo Fantasma?",
+                options: ["Gastly", "Zubat", "Drowzee", "Abra"],
+                correctAnswer: 0,
+                active: true
+            },
+            {
+                id: 5,
+                question: "Qual Pokémon evolui para Charizard?",
+                options: ["Charmeleon", "Charmander", "Ponyta", "Vulpix"],
+                correctAnswer: 0,
+                active: true
+            },
+            {
+                id: 6,
+                question: "Quantas badges são necessárias para desafiar a Liga Pokémon em Kanto?",
+                options: ["6", "8", "10", "12"],
+                correctAnswer: 1,
+                active: true
+            }
+        ];
+
+        // Estado do Quiz
+        let quizState = {
+            currentQuestionIndex: 0,
+            score: 0,
+            correctAnswers: 0,
+            selectedAnswer: null,
+            isAnswered: false
+        };
+
+        let adminState = {
+            editingQuestion: null,
+            isEditing: false
+        };
+
+        // Inicialização
+        document.addEventListener('DOMContentLoaded', function() {
+            // Verificar se é admin ou usuário comum
+            const isAdmin = localStorage.getItem('pokedrive_is_admin') === 'true';
+            
+            if (isAdmin) {
+                showAdminMode();
+            } else {
+                showPlayerMode();
+            }
+        });
+
+        // Modo Jogador
+        function showPlayerMode() {
+            document.getElementById('quiz-player').style.display = 'block';
+            document.getElementById('quiz-admin').style.display = 'none';
+            
+            // Carregar perguntas ativas
+            const activeQuestions = quizData.filter(q => q.active);
+            if (activeQuestions.length === 0) {
+                showToast('Nenhuma pergunta disponível no momento.', 'error');
+                return;
+            }
+            
+            startQuiz();
+        }
+
+        function startQuiz() {
+            quizState = {
+                currentQuestionIndex: 0,
+                score: 0,
+                correctAnswers: 0,
+                selectedAnswer: null,
+                isAnswered: false
+            };
+            
+            updateQuizDisplay();
+            loadQuestion();
+        }
+
+        function loadQuestion() {
+            const activeQuestions = quizData.filter(q => q.active);
+            if (activeQuestions.length === 0) return;
+            
+            const currentQuestion = activeQuestions[quizState.currentQuestionIndex];
+            
+            document.getElementById('question-text').textContent = currentQuestion.question;
+            document.getElementById('question-number').textContent = quizState.currentQuestionIndex + 1;
+            document.getElementById('total-questions').textContent = activeQuestions.length;
+            
+            const optionsContainer = document.getElementById('options-container');
+            optionsContainer.innerHTML = '';
+            
+            currentQuestion.options.forEach((option, index) => {
+                const optionBtn = document.createElement('button');
+                optionBtn.className = 'option-btn';
+                optionBtn.textContent = option;
+                optionBtn.onclick = () => selectAnswer(index);
+                optionsContainer.appendChild(optionBtn);
+            });
+            
+            // Resetar controles
+            document.getElementById('next-btn').style.display = 'none';
+            document.getElementById('restart-btn').style.display = 'none';
+            quizState.isAnswered = false;
+            quizState.selectedAnswer = null;
+        }
+
+        function selectAnswer(answerIndex) {
+            if (quizState.isAnswered) return;
+            
+            quizState.selectedAnswer = answerIndex;
+            quizState.isAnswered = true;
+            
+            const activeQuestions = quizData.filter(q => q.active);
+            const currentQuestion = activeQuestions[quizState.currentQuestionIndex];
+            const isCorrect = answerIndex === currentQuestion.correctAnswer;
+            
+            // Atualizar pontuação
+            if (isCorrect) {
+                quizState.score += 10;
+                quizState.correctAnswers++;
+            }
+            
+            // Destacar respostas
+            const optionBtns = document.querySelectorAll('.option-btn');
+            optionBtns.forEach((btn, index) => {
+                if (index === currentQuestion.correctAnswer) {
+                    btn.classList.add('correct');
+                } else if (index === answerIndex && !isCorrect) {
+                    btn.classList.add('incorrect');
+                }
+                btn.disabled = true;
+            });
+            
+            // Atualizar display
+            updateQuizDisplay();
+            
+            // Mostrar botão próximo ou finalizar
+            const isLastQuestion = quizState.currentQuestionIndex === activeQuestions.length - 1;
+            if (isLastQuestion) {
+                document.getElementById('restart-btn').style.display = 'block';
+                showResults();
+            } else {
+                document.getElementById('next-btn').style.display = 'block';
+            }
+        }
+
+        function nextQuestion() {
+            quizState.currentQuestionIndex++;
+            loadQuestion();
+            updateQuizDisplay();
+        }
+
+        function showResults() {
+            const activeQuestions = quizData.filter(q => q.active);
+            const resultSection = document.getElementById('result-section');
+            const finalScore = document.getElementById('final-score');
+            const resultMessage = document.getElementById('result-message');
+            
+            finalScore.textContent = `${quizState.correctAnswers}/${activeQuestions.length}`;
+            
+            // Mensagem personalizada baseada no desempenho
+            const percentage = (quizState.correctAnswers / activeQuestions.length) * 100;
+            if (percentage >= 90) {
+                resultMessage.textContent = "Incrível! Você é um verdadeiro Mestre Pokémon! 🌟";
+            } else if (percentage >= 70) {
+                resultMessage.textContent = "Muito bom! Você conhece bem o mundo Pokémon! 🎯";
+            } else if (percentage >= 50) {
+                resultMessage.textContent = "Bom trabalho! Continue aprendendo sobre Pokémon! 📚";
+            } else {
+                resultMessage.textContent = "Não desanime! A jornada Pokémon está apenas começando! 🚀";
+            }
+            
+            resultSection.style.display = 'block';
+        }
+
+        function restartQuiz() {
+            document.getElementById('result-section').style.display = 'none';
+            startQuiz();
+        }
+
+        function updateQuizDisplay() {
+            document.getElementById('current-question').textContent = quizState.currentQuestionIndex + 1;
+            document.getElementById('score').textContent = quizState.score;
+            document.getElementById('correct-answers').textContent = quizState.correctAnswers;
+        }
+
+        // Modo Administrador
+        function showAdminMode() {
+            document.getElementById('quiz-player').style.display = 'none';
+            document.getElementById('quiz-admin').style.display = 'block';
+            
+            updateAdminStats();
+            loadQuestionsList();
+        }
+
+        function loadQuestionsList() {
+            const questionsList = document.getElementById('questions-list');
+            questionsList.innerHTML = '';
+            
+            if (quizData.length === 0) {
+                questionsList.innerHTML = '<div class="question-item">Nenhuma pergunta cadastrada.</div>';
+                return;
+            }
+            
+            quizData.forEach(question => {
+                const questionItem = document.createElement('div');
+                questionItem.className = 'question-item';
+                questionItem.innerHTML = `
+                    <div class="question-item-header">
+                        <div class="question-item-text">${question.question}</div>
+                        <div style="font-size: 0.8rem; color: ${question.active ? 'var(--success)' : '#666'}">
+                            ${question.active ? '✅ Ativa' : '❌ Inativa'}
+                        </div>
+                    </div>
+                    <div class="question-options">
+                        ${question.options.map((option, index) => `
+                            <div class="option-item ${index === question.correctAnswer ? 'correct' : ''}">
+                                ${option} ${index === question.correctAnswer ? '✓' : ''}
+                            </div>
+                        `).join('')}
+                    </div>
+                    <div class="question-actions">
+                        <button class="action-btn edit-btn" onclick="editQuestion(${question.id})">Editar</button>
+                        <button class="action-btn" onclick="toggleQuestion(${question.id})" style="background-color: ${question.active ? '#666' : 'var(--success)'}; color: white;">
+                            ${question.active ? 'Desativar' : 'Ativar'}
+                        </button>
+                        <button class="action-btn delete-btn" onclick="deleteQuestion(${question.id})">Excluir</button>
+                    </div>
+                `;
+                questionsList.appendChild(questionItem);
+            });
+        }
+
+        function editQuestion(questionId) {
+            const question = quizData.find(q => q.id === questionId);
+            if (!question) return;
+            
+            adminState.editingQuestion = question;
+            adminState.isEditing = true;
+            
+            document.getElementById('form-title').textContent = 'Editar Pergunta';
+            document.getElementById('question-text-input').value = question.question;
+            
+            // Preencher opções
+            for (let i = 0; i < 4; i++) {
+                document.getElementById(`option-${i+1}`).value = question.options[i] || '';
+                document.getElementById(`correct-option-${i+1}`).checked = i === question.correctAnswer;
+            }
+            
+            // Scroll para o formulário
+            document.getElementById('question-form').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function saveQuestion() {
+            const questionText = document.getElementById('question-text-input').value.trim();
+            const options = [
+                document.getElementById('option-1').value.trim(),
+                document.getElementById('option-2').value.trim(),
+                document.getElementById('option-3').value.trim(),
+                document.getElementById('option-4').value.trim()
+            ];
+            
+            // Encontrar resposta correta
+            let correctAnswer = -1;
+            for (let i = 1; i <= 4; i++) {
+                if (document.getElementById(`correct-option-${i}`).checked) {
+                    correctAnswer = i - 1;
+                    break;
+                }
+            }
+            
+            // Validações
+            if (!questionText) {
+                showToast('Digite a pergunta.', 'error');
+                return;
+            }
+            
+            if (options.some(opt => !opt)) {
+                showToast('Preencha todas as opções.', 'error');
+                return;
+            }
+            
+            if (correctAnswer === -1) {
+                showToast('Selecione a resposta correta.', 'error');
+                return;
+            }
+            
+            if (adminState.isEditing && adminState.editingQuestion) {
+                // Editar pergunta existente
+                const questionIndex = quizData.findIndex(q => q.id === adminState.editingQuestion.id);
+                quizData[questionIndex] = {
+                    ...quizData[questionIndex],
+                    question: questionText,
+                    options: options,
+                    correctAnswer: correctAnswer
+                };
+                showToast('Pergunta atualizada com sucesso!');
+            } else {
+                // Adicionar nova pergunta
+                const newQuestion = {
+                    id: quizData.length > 0 ? Math.max(...quizData.map(q => q.id)) + 1 : 1,
+                    question: questionText,
+                    options: options,
+                    correctAnswer: correctAnswer,
+                    active: true
+                };
+                quizData.push(newQuestion);
+                showToast('Pergunta adicionada com sucesso!');
+            }
+            
+            // Salvar e atualizar
+            localStorage.setItem('pokemonQuizData', JSON.stringify(quizData));
+            resetForm();
+            updateAdminStats();
+            loadQuestionsList();
+        }
+
+        function toggleQuestion(questionId) {
+            const questionIndex = quizData.findIndex(q => q.id === questionId);
+            if (questionIndex !== -1) {
+                quizData[questionIndex].active = !quizData[questionIndex].active;
+                localStorage.setItem('pokemonQuizData', JSON.stringify(quizData));
+                updateAdminStats();
+                loadQuestionsList();
+                showToast(`Pergunta ${quizData[questionIndex].active ? 'ativada' : 'desativada'}!`);
+            }
+        }
+
+        function deleteQuestion(questionId) {
+            if (confirm('Tem certeza que deseja excluir esta pergunta?')) {
+                quizData = quizData.filter(q => q.id !== questionId);
+                localStorage.setItem('pokemonQuizData', JSON.stringify(quizData));
+                updateAdminStats();
+                loadQuestionsList();
+                showToast('Pergunta excluída com sucesso!');
+            }
+        }
+
+        function cancelEdit() {
+            resetForm();
+        }
+
+        function resetForm() {
+            adminState.editingQuestion = null;
+            adminState.isEditing = false;
+            
+            document.getElementById('form-title').textContent = 'Adicionar Nova Pergunta';
+            document.getElementById('question-text-input').value = '';
+            
+            for (let i = 1; i <= 4; i++) {
+                document.getElementById(`option-${i}`).value = '';
+                document.getElementById(`correct-option-${i}`).checked = false;
+            }
+            
+            // Marcar primeira opção como correta por padrão
+            document.getElementById('correct-option-1').checked = true;
+        }
+
+        function updateAdminStats() {
+            const totalQuestions = quizData.length;
+            const activeQuestions = quizData.filter(q => q.active).length;
+            
+            document.getElementById('total-questions-admin').textContent = totalQuestions;
+            document.getElementById('active-questions').textContent = activeQuestions;
+        }
+
+        // Utilitários
+        function showToast(message, type = 'success') {
+            const toast = document.createElement('div');
+            toast.className = `toast ${type === 'error' ? 'error' : ''}`;
+            toast.textContent = message;
+            
+            document.getElementById('toast-container').appendChild(toast);
+            
+            setTimeout(() => {
+                toast.classList.add('show');
+            }, 10);
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => {
+                    if (toast.parentNode) {
+                        toast.parentNode.removeChild(toast);
+                    }
+                }, 300);
+            }, 3000);
+        }
+
+        function goBackToDrive() {
+            // Em um sistema integrado, isso redirecionaria para o PokeDrive
+            if (window.parent !== window) {
+                // Se estiver dentro de um iframe
+                window.parent.postMessage('closeProject', '*');
+            } else {
+                alert('Voltando para o PokeDrive...');
+                // window.location.href = 'pokedrive.html'; // Descomente quando integrar
+            }
+        }
+
+        // Inicializar formulário
+        resetForm();
+
+        // Escutar mensagens do PokeDrive
+        window.addEventListener('message', function(event) {
+            if (event.data === 'closeProject') {
+                if (window.parent !== window) {
+                    window.parent.postMessage('closeProject', '*');
+                }
+            }
+        });
+    </script>
+</body>
+</html>
